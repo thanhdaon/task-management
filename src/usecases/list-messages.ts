@@ -1,7 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
 import { app } from "~/app";
 import { db } from "~/db/db";
-import { createSuccessResponseSchema, MessageSchema } from "~/openapi/schemas";
+import { successResponseSchema, MessageSchema } from "~/app/openapi-schemas";
 
 const route = createRoute({
   tags: ["messages"],
@@ -11,7 +11,7 @@ const route = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: createSuccessResponseSchema(MessageSchema.array()),
+          schema: successResponseSchema(MessageSchema.array()),
         },
       },
       description: "List the all messages",

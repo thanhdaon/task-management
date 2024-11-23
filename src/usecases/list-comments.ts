@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { app } from "~/app";
 import { db } from "~/db/db";
 import { nest } from "~/helpers/comment";
-import { createSuccessResponseSchema, CommentSchema } from "~/openapi/schemas";
+import { successResponseSchema, CommentSchema } from "~/app/openapi-schemas";
 
 const route = createRoute({
   tags: ["comments"],
@@ -13,7 +13,7 @@ const route = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: createSuccessResponseSchema(CommentSchema.array()),
+          schema: successResponseSchema(CommentSchema.array()),
         },
       },
       description: "Retrieve the all todos",

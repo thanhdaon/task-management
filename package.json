@@ -8,7 +8,8 @@
     "db:generate": "drizzle-kit generate --config=src/db/drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config=src/db/drizzle.config.ts",
     "db:push": "drizzle-kit push --config=src/db/drizzle.config.ts",
-    "db:seed": "tsx --env-file=.env src/db/seed.ts"
+    "db:seed": "tsx --env-file=.env src/db/seed.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
@@ -18,6 +19,7 @@
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@t3-oss/env-core": "^0.11.1",
+    "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.4",
     "hono": "^4.6.11",
     "lodash-es": "^4.17.21",
@@ -26,12 +28,14 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.2.13",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.9.1",
     "@types/pg": "^8.11.10",
     "drizzle-kit": "^0.28.1",
     "drizzle-seed": "^0.1.1",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
   }
 }

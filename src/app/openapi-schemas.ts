@@ -1,6 +1,6 @@
 import { z } from "@hono/zod-openapi";
 
-export function createSuccessResponseSchema<T>(schema: z.ZodType<T>) {
+export function successResponseSchema<T>(schema: z.ZodType<T>) {
   return z.object({ data: schema });
 }
 

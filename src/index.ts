@@ -1,13 +1,19 @@
 import { serve } from "@hono/node-server";
-import { app } from "~/app";
 import { env } from "~/helpers/env";
+import { createApp } from "~/app/create-app";
+
+import * as signup from "~/usecases/signup";
+import * as signin from "~/usecases/signin";
 
 async function bootstrap() {
-  await import("~/routes/signin");
+  const app = createApp();
+
+  app.openapi(signup.route, signup.handler);
+  app.openapi(signin.route, signin.handler);
 
   serve({ fetch: app.fetch, port: env.PORT }, (info) => {
     console.log(`Server is running`, info);
   });
 }
 
-bootstrap().catch(console.log);
+bootstrap().catch(console.error);

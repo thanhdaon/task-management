@@ -1,6 +1,5 @@
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
-import { app } from "~/app";
 import { setSessionCookie } from "~/auth/adapter-hono";
 import {
   createSession,
@@ -9,52 +8,35 @@ import {
   getUserPasswordHash,
 } from "~/auth/auth";
 import { verifyPassword } from "~/auth/password";
-import { responseBadRequest } from "~/openapi/response";
+import { BAD_REQUEST, OK } from "~/app/http-status-codes";
+import { responseBadRequest, responseOk } from "~/app/response";
 import {
-  createSuccessResponseSchema,
+  successResponseSchema,
   ErrorSchema,
   UserSchema,
-} from "~/openapi/schemas";
+} from "~/app/openapi-schemas";
+import { AppRouteHandler } from "~/app/types";
+import { jsonContent, jsonContentRequired } from "~/app/openapi-json";
 
 const BodySchema = z.object({
   username: z.string().min(1),
   password: z.string().min(1),
 });
 
-const route = createRoute({
+export const route = createRoute({
   tags: ["auth"],
   method: "post",
   path: "/auth/signin",
   request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: BodySchema,
-        },
-      },
-    },
+    body: jsonContentRequired(BodySchema, "Signin inputs"),
   },
   responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: createSuccessResponseSchema(UserSchema),
-        },
-      },
-      description: "Signin success",
-    },
-    400: {
-      content: {
-        "application/json": {
-          schema: ErrorSchema,
-        },
-      },
-      description: "Invalid credentials",
-    },
+    [OK]: jsonContent(successResponseSchema(UserSchema), "Signin success"),
+    [BAD_REQUEST]: jsonContent(ErrorSchema, "Invalid credentials"),
   },
 });
 
-app.openapi(route, async (c) => {
+export const handler: AppRouteHandler<typeof route> = async (c) => {
   const { username, password } = await c.req.valid("json");
 
   if (username === "" || password === "") {
@@ -77,5 +59,5 @@ app.openapi(route, async (c) => {
   const session = await createSession(sessionToken, user.id);
   setSessionCookie(c, sessionToken, session.expiresAt);
 
-  return responseBadRequest(c, "invalid credentials");
-});
+  return responseOk(c, user);
+};

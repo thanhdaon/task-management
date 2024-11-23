@@ -2,7 +2,7 @@ import { createRoute } from "@hono/zod-openapi";
 import omit from "lodash-es/omit";
 import { z } from "zod";
 import { app } from "~/app";
-import { createSuccessResponseSchema, ErrorSchema } from "~/openapi/schemas";
+import { successResponseSchema, ErrorSchema } from "~/app/openapi-schemas";
 
 const BodySchema = z.object({
   text: z.string(),
@@ -25,7 +25,7 @@ const route = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: createSuccessResponseSchema(z.string()),
+          schema: successResponseSchema(z.string()),
         },
       },
       description: "Create message success",

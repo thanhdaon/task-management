@@ -1,6 +1,5 @@
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
-import { app } from "~/app";
 import { setSessionCookie } from "~/auth/adapter-hono";
 import {
   checkUsernameAvailability,
@@ -8,19 +7,20 @@ import {
   createUser,
   generateSessionToken,
 } from "~/auth/auth";
-import { responseBadRequest } from "~/openapi/response";
+import { responseBadRequest, responseCreated } from "~/app/response";
 import {
-  createSuccessResponseSchema,
+  successResponseSchema,
   ErrorSchema,
   UserSchema,
-} from "~/openapi/schemas";
+} from "~/app/openapi-schemas";
+import { AppRouteHandler } from "~/app/types";
 
 const BodySchema = z.object({
   username: z.string(),
   password: z.string(),
 });
 
-const route = createRoute({
+export const route = createRoute({
   tags: ["auth"],
   method: "post",
   path: "/auth/signup",
@@ -37,7 +37,7 @@ const route = createRoute({
     201: {
       content: {
         "application/json": {
-          schema: createSuccessResponseSchema(UserSchema),
+          schema: successResponseSchema(UserSchema),
         },
       },
       description: "Signup success",
@@ -53,7 +53,7 @@ const route = createRoute({
   },
 });
 
-app.openapi(route, async (c) => {
+export const handler: AppRouteHandler<typeof route> = async (c) => {
   const body = await c.req.valid("json");
 
   if (body.username === "" || body.password === "") {
@@ -70,5 +70,5 @@ app.openapi(route, async (c) => {
   const session = await createSession(sessionToken, user.id);
   setSessionCookie(c, sessionToken, session.expiresAt);
 
-  return c.json({ data: user }, 201);
-});
+  return responseCreated(c, user);
+};
