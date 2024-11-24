@@ -14,8 +14,11 @@ export type Session = {
   expiresAt: Date;
 };
 
+export type Role = "employee" | "employer";
+
 export type User = {
   id: number;
+  role: "employee" | "employer";
   username: string;
   createdAt: Date;
 };
@@ -51,7 +54,19 @@ export async function validateSessionToken(
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
   const result = await db
-    .select({ user: users, session: sessions })
+    .select({
+      user: {
+        id: users.id,
+        role: users.role,
+        username: users.username,
+        createdAt: users.createdAt,
+      },
+      session: {
+        id: sessions.id,
+        userId: sessions.userId,
+        expiresAt: sessions.expiresAt,
+      },
+    })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))
     .where(eq(sessions.id, sessionId));
@@ -85,15 +100,17 @@ export async function invalidateSession(sessionId: string): Promise<void> {
 
 export async function createUser(
   username: string,
-  password: string
+  password: string,
+  role: Role
 ): Promise<User> {
   const hashedPassword = await hashPassword(password);
   const [newUser] = await db
     .insert(users)
-    .values({ username, password: hashedPassword })
+    .values({ username, password: hashedPassword, role })
     .returning({
       id: users.id,
       username: users.username,
+      role: users.role,
       createdAt: users.createdAt,
     });
   return newUser;
@@ -120,6 +137,7 @@ export async function getUserById(userId: number): Promise<User> {
     columns: {
       id: true,
       username: true,
+      role: true,
       createdAt: true,
     },
   });
@@ -131,21 +149,20 @@ export async function getUserById(userId: number): Promise<User> {
   throw new Error(`user with id ${userId} not found`);
 }
 
-export async function getUserByUsername(username: string): Promise<User> {
+export async function getUserByUsername(
+  username: string
+): Promise<User | undefined> {
   const found = await db.query.users.findFirst({
     where: eq(users.username, username),
     columns: {
       id: true,
+      role: true,
       username: true,
       createdAt: true,
     },
   });
 
-  if (found) {
-    return found;
-  }
-
-  throw new Error(`user ${username} not found`);
+  return found;
 }
 
 export async function checkUsernameAvailability(username: string) {

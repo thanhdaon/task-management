@@ -2,7 +2,7 @@ import { ZodSchema } from "~/app/types";
 
 export const jsonContent = <T extends ZodSchema>(
   schema: T,
-  description: string
+  description: string = ""
 ) => {
   return {
     content: {
@@ -16,7 +16,7 @@ export const jsonContent = <T extends ZodSchema>(
 
 export const jsonContentRequired = <T extends ZodSchema>(
   schema: T,
-  description: string
+  description: string = ""
 ) => {
   return {
     ...jsonContent(schema, description),

@@ -1,6 +1,10 @@
-type IDs = { id: number }[];
-type Comments = { id: number; messageId: number }[];
+import { reset, seed } from "drizzle-seed";
+import { db } from "~/db/db";
+import * as schema from "~/db/schema";
 
-async function seed() {}
+async function run() {
+  await reset(db as any, schema);
+  await seed(db as any, schema);
+}
 
-seed().catch(console.log);
+run().catch(console.log);

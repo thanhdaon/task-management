@@ -2,13 +2,12 @@ import type { Hook } from "@hono/zod-openapi";
 import { type ErrorHandler, type NotFoundHandler } from "hono";
 import { StatusCode } from "hono/utils/http-status";
 import {
+  BAD_REQUEST,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
   OK,
-  UNPROCESSABLE_ENTITY,
 } from "~/app/http-status-codes";
 import { HttpStatusPhrases } from "~/app/http-status-phrases";
-import { env } from "~/helpers/env";
 
 export const notFound: NotFoundHandler = (c) => {
   return c.json(
@@ -26,23 +25,20 @@ export const onError: ErrorHandler = (err, c) => {
   const statusCode =
     currentStatus !== OK ? currentStatus : INTERNAL_SERVER_ERROR;
 
-  return c.json(
-    {
-      error: err.message,
-      stack: env.NODE_ENV === "production" ? undefined : err.stack,
-    },
-    statusCode as StatusCode
-  );
+  return c.json({ error: err.message }, statusCode as StatusCode);
 };
 
 export const defaultHook: Hook<any, any, any, any> = (result, c) => {
   if (!result.success) {
     return c.json(
       {
-        success: result.success,
-        error: result.error,
+        error: result.error.issues
+          .map(({ path, message }) => {
+            return `Field ${path.join(".")} is invalid. ${message}`;
+          })
+          .join(", "),
       },
-      UNPROCESSABLE_ENTITY
+      BAD_REQUEST
     );
   }
 };
