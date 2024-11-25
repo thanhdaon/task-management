@@ -3,6 +3,7 @@ import {
   BAD_REQUEST,
   CREATED,
   FORBIDDEN,
+  NOT_FOUND,
   OK,
   UNAUTHORIZED,
 } from "~/app/http-status-codes";
@@ -18,6 +19,14 @@ export function responseCreated<T>(c: Context, data: T) {
 
 export function responseOk<T>(c: Context, data: T) {
   return c.json({ code: OK, data }, OK);
+}
+
+export function responseOkMessage(c: Context, message: string) {
+  return c.json({ code: OK, message }, OK);
+}
+
+export function responseNotFound(c: Context, error: string) {
+  return c.json({ code: NOT_FOUND, error }, NOT_FOUND);
 }
 
 export function responseUnthenticated(c: Context) {

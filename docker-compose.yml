@@ -16,6 +16,14 @@ services:
     volumes:
       - "postgres-data:/var/lib/postgresql/data"
 
+  task:
+    image: "task-management:1"
+    ports:
+      - "8000:8000"
+    environment:
+      - "PORT=8000"
+      - "DATABASE_URL=postgres://admin:password@postgres:5432/tasks"
+
 volumes:
   redis-data:
   postgres-data:

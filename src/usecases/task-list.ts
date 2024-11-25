@@ -1,5 +1,5 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import { and, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { OK } from "~/app/http-status-codes";
 import { jsonContent } from "~/app/openapi-json";
 import {
@@ -25,6 +25,16 @@ const QuerySchema = z.object({
 
 export const route = createRoute({
   tags: ["tasks"],
+  description: `
+    Employer Role can View All Tasks with Filtering and Sorting:
+      - Filter tasks by:
+        - Assignee: View tasks assigned to a specific employee.
+        - Status: View tasks based on status (e.g., "Pending," "In Progress," "Completed").
+      - Sort tasks by:
+        - Date: Sort tasks by creation date or due date.
+        - Status: Sort tasks by task status to see active or completed tasks first.
+    Employee Role can only view the tasks assigned to them
+  `,
   method: "get",
   path: "/tasks",
   request: {
@@ -48,6 +58,24 @@ export const handler: AppSecureRouteHandler<typeof route> = async (c) => {
     conditions.push(when(queries.assigneeId, (id) => eq(tasks.assigneeId, id)));
   }
 
+  const sortOp = { asc: asc, desc: desc };
+
+  const orderBy = () => {
+    if (queries.sortField === "status") {
+      return [sortOp[queries.sortOrder](tasks.status), asc(tasks.id)];
+    }
+
+    if (queries.sortField === "createdAt") {
+      return [sortOp[queries.sortOrder](tasks.createdAt), asc(tasks.id)];
+    }
+
+    if (queries.sortField === "dueDate") {
+      return [sortOp[queries.sortOrder](tasks.dueDate), asc(tasks.id)];
+    }
+
+    return [asc(tasks.id)];
+  };
+
   const [results, total] = await Promise.all([
     db.query.tasks.findMany({
       where: and(...conditions),
@@ -60,30 +88,7 @@ export const handler: AppSecureRouteHandler<typeof route> = async (c) => {
       },
       limit: queries.pageSize,
       offset: (queries.page - 1) * queries.pageSize,
-      orderBy: (t, operator) => {
-        if (queries.sortField === "status") {
-          return [
-            operator[queries.sortOrder](t.status),
-            operator.asc(tasks.id),
-          ];
-        }
-
-        if (queries.sortField === "createdAt") {
-          return [
-            operator[queries.sortOrder](t.createdAt),
-            operator.asc(tasks.id),
-          ];
-        }
-
-        if (queries.sortField === "dueDate") {
-          return [
-            operator[queries.sortOrder](t.dueDate),
-            operator.asc(tasks.id),
-          ];
-        }
-
-        return [operator.asc(tasks.id)];
-      },
+      orderBy,
     }),
     db.$count(tasks, and(...conditions)),
   ]);
