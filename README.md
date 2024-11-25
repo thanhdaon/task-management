@@ -1,151 +1,171 @@
+# Task Management API
+
+## Table of Contents
+
+1. [Environments](#environments)
+2. [Tech Stack](#tech-stack)
+3. [Features](#features)
+4. [Steps to Run the Project Locally](#steps-to-run-the-project-locally)
+5. [Scripts](#scripts)
+6. [API Documentation](#api-documentation)
+7. [Deployment Instructions](#deployment-instructions)
+
+---
+
 ## Environments
 
-- Nodejs 23
-- Pnpm
+- **Node.js**: 23
+- **Package Manager**: pnpm
+
+---
+
+## Tech Stack
+
+- **Backend Framework**: [Hono](https://github.com/honojs/hono)
+- **Validation**: [Zod](https://github.com/colinhacks/zod)
+- **API Documentation**: Hono Zod-OpenAPI, Hono Swagger-UI
+- **ORM**: [Drizzle ORM](https://github.com/drizzle-team/drizzle-orm)
+- **Database**: PostgreSQL
+- **Testing**: [Vitest](https://vitest.dev/)
+
+---
+
+## Features
+
+### Employee Role
+
+- **View Assigned Tasks**  
+  Employees can only view tasks specifically assigned to them.
+- **Update Task Status**  
+  Employees can update the status of their tasks (e.g., "In Progress," "Completed").
+
+### Employer Role
+
+- **Create and Assign Tasks**  
+  Employers can create tasks and assign them to employees.
+- **View All Tasks with Filtering and Sorting**
+  - **Filter By**: Assignee, Status (e.g., "Pending," "In Progress," "Completed").
+  - **Sort By**: Creation Date, Due Date, Task Status (e.g., Active or Completed).
+- **View Employee Task Summary**
+  - Total number of tasks assigned to an employee.
+  - Number of tasks completed by each employee.
+
+---
 
 ## Steps to Run the Project Locally
 
-1. Clone the Project:
+### 1. Clone the Project:
 
-   First, clone the project repository to your local machine:
+First, clone the project repository to your local machine:
 
-   ```bash
-   git clone <your-repo-url>
-   cd <your-project-directory>
-   ```
+```bash
+git clone <your-repo-url>
+cd <your-project-directory>
+```
 
-2. Install Dependencies:
+### 2. Install Dependencies:
 
-   Install the required dependencies using pnpm:
+Install the required dependencies using pnpm:
 
-   ```bash
-   pnpm install
-   ```
+```bash
+pnpm install
+```
 
-3. Set Up Environment Variables:
+### 3. Set Up Environment Variables:
 
-   Create a .env file in the root directory of the project (if it's not already present).
+Create a .env file in the root directory of the project (if it's not already present).
 
-   Example .env:
+Example .env:
 
-   ```bash
-   PORT= # port of server
-   DATABASE_URL= # PostgreSQL connection string
-   ```
+```bash
+PORT= # port of server
+DATABASE_URL= # PostgreSQL connection string
+```
 
-4. Run Database Migrations (for development):
+### 4. Run Database Migrations (for development):
 
-   To apply pending migrations and update the local development database schema, run:
+To apply pending migrations and update the local development database schema, run:
 
-   ```bash
-   pnpm db:migrate
-   ```
+```bash
+pnpm db:migrate
+```
 
-5. (Optional) Seed the Database:
+### 5. (Optional) Seed the Database:
 
-   If you want to populate the database with mock data for testing, use the seeding script:
+If you want to populate the database with mock data for testing, use the seeding script:
 
-   ```bash
-   pnpm db:seed
-   ```
+```bash
+pnpm db:seed
+```
 
-6. Start the Development Server:
+### 6. Start the Development Server:
 
-   Now you can start the development server with hot-reloading enabled:
+Now you can start the development server with hot-reloading enabled:
 
-   ```bash
-   pnpm dev
-   ```
+```bash
+pnpm dev
+```
 
-   This will run the server on http://localhost:8000 (by default) and the swagger doc will live on http://localhost:8000/api/doc.
+This will run the server on http://localhost:8000 (by default) and the swagger doc will live on http://localhost:8000/api/doc.
 
 ## Scripts
 
-### `dev`
+### Development
 
-Starts the development server. This script enables hot-reloading and provides a development environment for building and testing your application.
+- **pnpm dev**
+  Starts the development server with hot-reloading.
 
-### `build`
+### Production
 
-Builds the application for production using tsc and tsc-alias
+- **pnpm build**
+  Builds the application for production.
 
-### `db:generate`
+### Database Management
 
-Generates migration file.
+- **pnpm db:generate**
+  Generates a new migration file.
+- **pnpm db:migrate**
+  Applies migrations to update the database schema.
 
-### `db:seed`
+- **pnpm db:seed**
+  Seeds the database with mock data.
 
-This script populates the database with mock data.
+- **pnpm db:studio**
+  Opens Prisma Studio for database interaction.
 
-### `db:studio`
+### Testing
 
-Opens Prisma Studio, a GUI for interacting with your database. This allows you to view and manage your data through an interactive interface.
+- **pnpm test**
+  Runs the tests using Vitest.
 
-### `db:migrate-dev`
+## API Documentation
 
-Runs a sequence of commands for development database management:
+API documentation is available via Swagger:
 
-1. prisma migrate dev: Applies any pending migrations and updates the database schema in development.
-2. prisma generate: Generates Prisma client code based on the updated schema.
+- URL: http://localhost:8000/api/doc
 
-## Techstack
+## Deployment Instructions
 
-- TypeScript
-- Hono
-- Hono zod-openapi
-- Hono swagger-ui
-- Drizzle ORM
-- Zod
-- Vitest
-- Postgres
+### Using Docker
 
-## Main requirements
+1. Build the Docker image:
 
-### Task Management API
+```bash
+docker build -t task-management-api .
+```
 
-A simple Task Management API that supports role-based access for two types of users: Employer and Employee.
+2. Run the container:
 
-#### Features
+```bash
+docker run -p 8000:8000 --env-file .env task-management-api
+```
 
-##### Employee Role
+3. The application will be accessible at http://localhost:8000.
 
-- View Assigned Tasks
-  - Employees can only view tasks assigned to them.
-- Task Status Update
-  - Employees can update the status of their tasks (e.g., "In Progress," "Completed").
+### Using Docker Compose
 
-##### Employer Role
+1. Run the application:
 
-- Create and Assign Tasks
-  - Employers can create new tasks and assign them to specific employees.
-- View All Tasks with Filtering and Sorting
-  - Filtering Options:
-    - By Assignee: View tasks assigned to a specific employee.
-    - By Status: View tasks based on status (e.g., "Pending," "In Progress," "Completed").
-  - Sorting Options:
-    - By Date: Sort tasks by creation date or due date.
-    - By Status: Sort tasks by task status to see active or completed tasks first.
-- View Employee Task Summary
-  - Employers can view a summary of all employees, which includes:
-    - Total number of tasks assigned.
-    - Number of tasks completed.
-
-### Evaluation Criteria
-
-1. Code Quality
-   Clean, efficient, modular, and testable code using Python, Golang, or JavaScript.
-   Follows best practices of the chosen language.
-2. Database Management
-   Proper schema design for task and user management.
-   Efficient query handling for filtering and sorting.
-3. Role-Based Access Control
-   Authentication and role-based authorization to restrict actions based on user roles.
-4. Deployment Knowledge
-   Dockerized application with Docker Compose or Kubernetes (K8s) setup.
-   Clear and comprehensive deployment documentation.
-
-## Known issue:
-
-I'm experiencing an issue where the tRPC endpoint timesout after each successful requests. The issue may relate to connection pooling, serverless timeouts, or the Neon driver. I'm investigating potential solutions to handle this issue.
-
-Note: This issue does not occur when using the Node.js runtime on Vercel.
+```bash
+docker-compose up --build
+```
