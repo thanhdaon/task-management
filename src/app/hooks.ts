@@ -19,13 +19,10 @@ export const notFound: NotFoundHandler = (c) => {
 };
 
 export const onError: ErrorHandler = (err, c) => {
-  const currentStatus =
-    "status" in err ? err.status : c.newResponse(null).status;
-
-  const statusCode =
-    currentStatus !== OK ? currentStatus : INTERNAL_SERVER_ERROR;
-
-  return c.json({ error: err.message }, statusCode as StatusCode);
+  return c.json(
+    { error: err.message, code: INTERNAL_SERVER_ERROR },
+    INTERNAL_SERVER_ERROR
+  );
 };
 
 export const defaultHook: Hook<any, any, any, any> = (result, c) => {
@@ -37,6 +34,7 @@ export const defaultHook: Hook<any, any, any, any> = (result, c) => {
             return `Field ${path.join(".")} is invalid. ${message}`;
           })
           .join(", "),
+        code: BAD_REQUEST,
       },
       BAD_REQUEST
     );

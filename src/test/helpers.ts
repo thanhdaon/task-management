@@ -1,4 +1,4 @@
-import { createSession, generateSessionToken, User } from "~/auth/auth";
+import { createSession, generateSessionToken, Role, User } from "~/auth/auth";
 import { hashPassword } from "~/auth/password";
 import { db } from "~/db/db";
 import { users } from "~/db/schema";
@@ -6,12 +6,28 @@ import { users } from "~/db/schema";
 export function createSampleTask(assignee: User) {
   return {
     title: "task 1",
-    assignedId: assignee.id,
+    assigneeId: assignee.id,
     dueDate: "2025-12-30T05:58:35.633Z",
   };
 }
 
+export function createInvalidTask(assignee: User) {
+  return {
+    title: "task 1",
+    assigneeId: assignee.id,
+    dueDate: "2021115-12-30",
+  };
+}
+
 export async function seedEmployee() {
+  return await seedUser("employee");
+}
+
+export async function seedEmployer() {
+  return await seedUser("employer");
+}
+
+export async function seedUser(role: Role) {
   const correctPassword = "correct-password";
   const correctPasswordHashed = await hashPassword(correctPassword);
 
@@ -20,7 +36,7 @@ export async function seedEmployee() {
     .values({
       username: "demo",
       password: correctPasswordHashed,
-      role: "employee",
+      role,
     })
     .returning({
       id: users.id,

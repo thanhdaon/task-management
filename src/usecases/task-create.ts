@@ -15,7 +15,7 @@ import { tasks } from "~/db/schema";
 
 const BodySchema = z.object({
   title: z.string().min(1),
-  assignedId: z.number(),
+  assigneeId: z.number(),
   dueDate: z.coerce.date(),
 });
 
@@ -44,7 +44,7 @@ export const handler: AppSecureRouteHandler<typeof route> = async (c) => {
     .insert(tasks)
     .values({
       title: input.title,
-      assigneeId: input.assignedId,
+      assigneeId: input.assigneeId,
       dueDate: input.dueDate,
       createdById: c.var.user.id,
     })
@@ -52,6 +52,7 @@ export const handler: AppSecureRouteHandler<typeof route> = async (c) => {
       id: tasks.id,
       title: tasks.title,
       status: tasks.status,
+      assigneeId: tasks.assigneeId,
       createdAt: tasks.createdAt,
       dueDate: tasks.dueDate,
     });
