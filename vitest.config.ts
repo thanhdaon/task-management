@@ -6,7 +6,7 @@ config({ path: ".env.test" });
 
 export default defineConfig({
   test: {
-    setupFiles: ["test/setup.ts"],
+    setupFiles: "src/test/setup.ts",
   },
   resolve: {
     alias: {

@@ -2,8 +2,8 @@ import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { reset } from "drizzle-seed";
 import { afterEach, vi } from "vitest";
-
 import * as schema from "~/db/schema";
+
 import { db } from "~/db/db";
 
 vi.mock("~/db/db", async () => {

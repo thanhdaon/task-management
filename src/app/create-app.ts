@@ -19,6 +19,7 @@ export function createSecureRouter() {
     strict: false,
     defaultHook,
   });
+  hono.use(sessionMW);
   hono.use(secureMW);
   return hono;
 }
